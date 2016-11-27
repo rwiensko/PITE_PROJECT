@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'static_precompiler',
     'jquery',
+    'game_board.apps.GameBoardConfig',
 ]
 
 MIDDLEWARE = [
