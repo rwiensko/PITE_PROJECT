@@ -95,3 +95,6 @@ idea/
 
 # VIM temporary files
 *.swp
+
+#sqlite3
+*.sqlite3

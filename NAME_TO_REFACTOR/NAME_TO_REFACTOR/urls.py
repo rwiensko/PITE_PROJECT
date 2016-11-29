@@ -1,4 +1,4 @@
-"""NAME_TO_REFACTOR URL Configuration
+"""mysite URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/1.10/topics/http/urls/
@@ -15,8 +15,16 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
+from django.contrib.auth.views import login
+from accounts.views import *
 
 urlpatterns = [
-    url(r'^admin/', admin.site.urls),
-    url(r'^game-board/', include('game_board.urls'))
+    url(r'^$', login),
+    url(r'^logout/$', logout_page),
+    url(r'^accounts/login/$', login),  # If user is not login it will redirect to login page
+    url(r'^register/$', register),
+    url(r'^register/success/$', register_success),
+    url(r'^home/$', home),
+    url(r'^game-board/', include('game_board.urls')),
+    url(r'^admin/', include(admin.site.urls)),
 ]

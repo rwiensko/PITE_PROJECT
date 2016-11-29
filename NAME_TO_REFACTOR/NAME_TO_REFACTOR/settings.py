@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
 import os
+import django.contrib.auth
+django.contrib.auth.LOGIN_URL = '/'
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -40,13 +42,13 @@ INSTALLED_APPS = [
     'static_precompiler',
     'jquery',
     'game_board.apps.GameBoardConfig',
+    'accounts',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -69,6 +71,10 @@ TEMPLATES = [
         },
     },
 ]
+
+TEMPLATE_DIRS = (
+      os.path.join(os.path.dirname(__file__), 'templates'),
+)
 
 WSGI_APPLICATION = 'NAME_TO_REFACTOR.wsgi.application'
 
