@@ -1,0 +1,8 @@
+{
+  "name": "PITE project game",
+  "description": "Python In The Enterprise project",
+  "image": "heroku/python",
+  "repository": "https://github.com/rwiensko/PITE_PROJECT",
+  "keywords": ["python", "django"],
+  "addons": ["heroku-postgresql"]
+}
