@@ -28,7 +28,10 @@ SECRET_KEY = 'ava0iyv1gv)14+umef@n5vk-d@)#9d)s^vw$hw-)jnq!)$@04e'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [u'intense-bastion-41837.herokuapp.com']
+ALLOWED_HOSTS = [
+    u'intense-bastion-41837.herokuapp.com',
+    u'localhost'
+]
 
 
 # Application definition
@@ -87,7 +90,9 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'pite_project',
-        'USER': 'postgres'
+        'USER': 'postgres',
+        'HOST': '',
+        'PORT': '',
     }
 }
 
