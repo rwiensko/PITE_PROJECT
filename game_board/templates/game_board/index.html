@@ -1,10 +1,9 @@
 {% load static %}
-{% load compile_static %}
 
 <link rel="stylesheet" type="text/css" href="{% static 'game_board/stylesheets/index.css' %}">
 
 <script type="text/javascript" src="{% static 'js/jquery.js' %}"></script>
-<script type="text/javascript" src="{% static 'game_board/javascripts/index.coffee'|compile %}"></script>
+<script type="text/javascript" src="{% static 'game_board/javascripts/index.js' %}"></script>
 
 
 <div id="main-content" class="content" data-username="{{ user.username }}">
