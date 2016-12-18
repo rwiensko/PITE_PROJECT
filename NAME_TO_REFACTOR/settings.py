@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'static_precompiler',
     'jquery',
     'game_board.apps.GameBoardConfig',
     'accounts',
@@ -156,8 +155,6 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
         'django.contrib.staticfiles.finders.FileSystemFinder',
         'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-        # other finders..
-        'static_precompiler.finders.StaticPrecompilerFinder',
 )
 
 
