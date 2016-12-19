@@ -30,7 +30,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     u'intense-bastion-41837.herokuapp.com',
-    u'localhost'
+    u'localhost',
+    u'0.0.0.0'
 ]
 
 
