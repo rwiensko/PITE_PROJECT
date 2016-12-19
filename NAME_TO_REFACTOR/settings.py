@@ -31,9 +31,14 @@ DEBUG = True
 ALLOWED_HOSTS = [
     u'intense-bastion-41837.herokuapp.com',
     u'localhost',
-    u'0.0.0.0'
+    u'0.0.0.0',
 ]
 
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'intensebastion@gmail.com'
+EMAIL_HOST_PASSWORD = '1234test'
+EMAIL_PORT = 587
 
 # Application definition
 
