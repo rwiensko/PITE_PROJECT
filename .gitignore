@@ -98,3 +98,5 @@ idea/
 
 #sqlite3
 *.sqlite3
+
+pite_project/
