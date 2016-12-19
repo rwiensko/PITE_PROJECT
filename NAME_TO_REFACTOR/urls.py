@@ -23,6 +23,8 @@ urlpatterns = [
     url(r'^logout/$', logout_page),
     url(r'^accounts/login/$', login),  # If user is not login it will redirect to login page
     url(r'^register/$', register),
+    url(r'^activate/(?P<key>.+)$', activation),
+    url(r'^new-activation-link/(?P<user_id>\d+)/$', new_activation_link),
     url(r'^register/success/$', register_success),
     url(r'^home/$', home),
     url(r'^game-board/', include('game_board.urls')),
