@@ -46,6 +46,8 @@ INSTALLED_APPS = [
     'jquery',
     'game_board.apps.GameBoardConfig',
     'accounts',
+    'NAME_TO_REFACTOR',
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -157,4 +159,13 @@ STATICFILES_FINDERS = (
         'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 )
 
-
+# Channel settings
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "asgi_redis.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [os.environ.get('REDIS_URL', 'redis://localhost:6379')],
+        },
+        "ROUTING": "NAME_TO_REFACTOR.routing.channel_routing",
+    },
+}
