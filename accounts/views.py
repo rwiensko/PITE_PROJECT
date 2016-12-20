@@ -28,7 +28,6 @@ def register(request):
             if isinstance(user_name_salt, unicode):
                 user_name_salt = user_name_salt.encode('utf8')
             data['activation_key'] = hashlib.sha1(salt+user_name_salt).hexdigest()
-            data['email_path'] = "/activation_mail.txt"
             data['email_subject'] = "Activation mail"
 
             form.sendEmail(data)
@@ -74,7 +73,7 @@ def activation(request, key):
 
     else:
         already_active = True
-    return render(request, 'registration/activation.html', locals())
+    return render(request, 'registration/success.html', locals())
 
 
 def new_activation_link(request, user_id):
@@ -84,7 +83,6 @@ def new_activation_link(request, user_id):
     if user is not None and not user.is_active:
         data['username'] = user.username
         data['email'] = user.email
-        data['email_path'] = "hello"
         data['email_subject'] = "New activation link"
 
         salt = hashlib.sha1(str(random.random())).hexdigest()[:5]
