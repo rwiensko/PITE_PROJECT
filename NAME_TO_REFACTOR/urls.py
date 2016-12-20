@@ -27,4 +27,5 @@ urlpatterns = [
     url(r'^home/$', home),
     url(r'^game-board/', include('game_board.urls')),
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^chat/', include('chat.urls')),
 ]

@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'jquery',
     'game_board.apps.GameBoardConfig',
     'accounts',
+    'chat',
 ]
 
 MIDDLEWARE = [
