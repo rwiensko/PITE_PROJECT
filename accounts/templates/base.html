@@ -24,6 +24,7 @@
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav">
         <li><a href="/game-board">Game</a></li>
+        <li><a href="/chat">Chat</a></li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
           {% if not user.is_authenticated %}
@@ -41,5 +42,6 @@
         {% block content %}{% endblock %}
         </div>
 
+        {% block afterbody %}{% endblock afterbody %}
     </body>
 </html>
