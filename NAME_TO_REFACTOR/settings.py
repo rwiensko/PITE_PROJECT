@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'game_board.apps.GameBoardConfig',
     'accounts',
     'chat',
+    'channels',
 ]
 
 MIDDLEWARE = [
@@ -79,9 +80,6 @@ TEMPLATES = [
 TEMPLATE_DIRS = (
       os.path.join(os.path.dirname(__file__), 'templates'),
 )
-
-WSGI_APPLICATION = 'NAME_TO_REFACTOR.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
@@ -178,5 +176,16 @@ LOGGING = {
             'propagate': False,
             'level': 'DEBUG',
         },
+    },
+}
+
+# Redis channel layer for websockets
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "asgi_redis.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [os.environ.get('REDIS_URL', 'redis://localhost:6379')],
+        },
+        "ROUTING": "chat.routing.channel_routing",
     },
 }
