@@ -1,7 +1,7 @@
 import hashlib
 import random
 from datetime import datetime
-from django.db import transaction
+from django.db import transaction, IntegrityError
 
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
@@ -55,10 +55,7 @@ def logout_page(request):
 
 @login_required
 def home(request):
-    return render_to_response(
-        'home.html',
-        {'user': request.user}
-    )
+    return render_to_response('home.html',{'user': request.user})
 
 
 def activation(request, key):
@@ -105,16 +102,24 @@ def new_activation_link(request, user_id):
     return redirect(home)
 
 
+def add_nothing(request):
+    return render_to_response('friends.html', {'user': request.user})
+
 @transaction.atomic
-def add_friend(request, user_id, friend_id):
+def add_friend(request, friend_id):
     if request.method == 'POST':
+        user_id = request.user.id
         user = User.objects.get(id=user_id)
         friend = User.objects.get(id=friend_id)
         if user is not None and friend is not None and (user.is_active and friend.is_active):
-            user_profile = Profile.objects.get(user)
-            friend_profile = Profile.objects.get(friend)
-            user_profile.add_friend(friend_id)
-            friend_profile.add_friend(user_id)
-            user_profile.save()
-            friend_profile.save()
+            try:
+                user_profile = Profile.objects.get(user)
+                user_profile.save()
+                user_profile.add_friend(friend_id)
+                with transaction.atomic():
+                    friend_profile = Profile.objects.get(friend)
+                    friend_profile.add_friend(user_id)
+                    friend_profile.save()
+            except IntegrityError:
+                render(request, 'home.html', locals())
 
