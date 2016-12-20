@@ -122,4 +122,3 @@ def add_friend(request, friend_id):
                     friend_profile.save()
             except IntegrityError:
                 render(request, 'home.html', locals())
-

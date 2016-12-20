@@ -12,4 +12,3 @@ class Profile(models.Model):
 
     def add_friend(self, friend_id):
         self.list_of_friends.append(friend_id)
-

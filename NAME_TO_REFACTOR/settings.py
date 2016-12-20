@@ -31,7 +31,7 @@ DEBUG = True
 ALLOWED_HOSTS = [
     u'intense-bastion-41837.herokuapp.com',
     u'localhost',
-    u'127.0.0.1'
+    u'127.0.0.1',
 ]
 
 EMAIL_USE_TLS = True
