@@ -4,15 +4,5 @@
   "image": "heroku/python",
   "repository": "https://github.com/rwiensko/PITE_PROJECT",
   "keywords": ["python", "django"],
-  "addons": ["heroku-postgresql", "heroku-redis"],
-  "formation": {
-      "web": {
-          "quantity": 1,
-        " size": "Free"
-      },
-      "worker": {
-          "quantity": 1,
-          "size": "Free"
-      }
-  }
+  "addons": ["heroku-postgresql"]
 }

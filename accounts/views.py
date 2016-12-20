@@ -1,44 +1,39 @@
 import hashlib
 import random
 from datetime import datetime
+
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
 from django.contrib.auth.models import User
 from django.shortcuts import render_to_response, get_object_or_404, render, redirect
 from django.http import HttpResponseRedirect
+from django.template import RequestContext
 from django.utils import timezone
+
 from accounts.forms import RegistrationForm
 from accounts.models import Profile
 
 
 def register(request):
-    if request.user.is_authenticated():
-        return redirect(home)
-    registration_form = RegistrationForm()
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
         if form.is_valid():
-            data={}
-            data['username'] = form.cleaned_data['username']
-            data['email'] = form.cleaned_data['email']
-            data['password1'] = form.cleaned_data['password1']
+            user = User.objects.create_user(
+                username=form.cleaned_data['username'],
+                password=form.cleaned_data['password1'],
+                email=form.cleaned_data['email']
+            )
+            return HttpResponseRedirect('/register/success/')
+    else:
+        form = RegistrationForm()
+    variables = RequestContext(request, {
+        'form': form
+    })
 
-            salt = hashlib.sha1(str(random.random())).hexdigest()[:5]
-            user_name_salt = data['username']
-            if isinstance(user_name_salt, unicode):
-                user_name_salt = user_name_salt.encode('utf8')
-            data['activation_key'] = hashlib.sha1(salt+user_name_salt).hexdigest()
-            data['email_path'] = "/activation_mail.txt"
-            data['email_subject'] = "Activation mail"
-
-            form.sendEmail(data)
-            form.save(data)
-
-            request.session['registered']=True
-            return redirect(home)
-        else:
-            registration_form = form
-    return render(request, 'registration/register.html', locals())
+    return render_to_response(
+        'registration/register.html',
+        variables,
+    )
 
 
 def register_success(request):
@@ -74,39 +69,31 @@ def activation(request, key):
 
     else:
         already_active = True
-    return render(request, 'registration/activation.html', locals())
+    return render(request, 'siteApp/activation.html', locals())
 
 
 def new_activation_link(request, user_id):
     form = RegistrationForm()
-    data = {}
+    datas = {}
     user = User.objects.get(id=user_id)
     if user is not None and not user.is_active:
-        data['username'] = user.username
-        data['email'] = user.email
-        data['email_path'] = "hello"
-        data['email_subject'] = "New activation link"
+        datas['username'] = user.username
+        datas['email'] = user.email
+        datas['email_path'] = "/ResendEmail.txt"
+        datas['email_subject'] = "New activation link your domain"
 
         salt = hashlib.sha1(str(random.random())).hexdigest()[:5]
-        user_name_salt = data['username']
-        if isinstance(user_name_salt, unicode):
-            user_name_salt = user_name_salt.encode('utf8')
-        data['activation_key'] = hashlib.sha1(salt+user_name_salt).hexdigest()
+        usernamesalt = datas['username']
+        if isinstance(usernamesalt, unicode):
+            usernamesalt = usernamesalt.encode('utf8')
+        datas['activation_key'] = hashlib.sha1(salt+usernamesalt).hexdigest()
 
         profile = Profile.objects.get(user=user)
-        profile.activation_key = data['activation_key']
+        profile.activation_key = datas['activation_key']
         profile.key_expires = datetime.datetime.strftime(datetime.datetime.now() + datetime.timedelta(days=2), "%Y-%m-%d %H:%M:%S")
-        profile.list_of_friends = []
         profile.save()
 
-        form.sendEmail(data)
+        form.sendEmail(datas)
         request.session['new_link'] = True
 
     return redirect(home)
-
-
-def add_friend(request):
-    if request.method == 'POST':
-        form = RegistrationForm(request.POST)
-        if form.is_valid():
-            pass

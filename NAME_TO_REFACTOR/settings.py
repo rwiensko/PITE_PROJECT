@@ -30,15 +30,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     u'intense-bastion-41837.herokuapp.com',
-    u'localhost',
-    u'0.0.0.0',
+    u'localhost'
 ]
 
-EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_HOST_USER = 'intensebastion@gmail.com'
-EMAIL_HOST_PASSWORD = '1234test'
-EMAIL_PORT = 587
 
 # Application definition
 
@@ -52,8 +46,6 @@ INSTALLED_APPS = [
     'jquery',
     'game_board.apps.GameBoardConfig',
     'accounts',
-    'NAME_TO_REFACTOR',
-    'channels',
 ]
 
 MIDDLEWARE = [
@@ -165,13 +157,4 @@ STATICFILES_FINDERS = (
         'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 )
 
-# Channel settings
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "asgi_redis.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [os.environ.get('REDIS_URL', 'redis://localhost:6379')],
-        },
-        "ROUTING": "NAME_TO_REFACTOR.routing.channel_routing",
-    },
-}
+

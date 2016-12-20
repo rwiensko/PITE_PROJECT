@@ -17,19 +17,14 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from django.contrib.auth.views import login
 from accounts.views import *
-from . import views
 
 urlpatterns = [
     url(r'^$', login),
     url(r'^logout/$', logout_page),
     url(r'^accounts/login/$', login),  # If user is not login it will redirect to login page
     url(r'^register/$', register),
-    url(r'^activate/(?P<key>.+)$', activation),
-    url(r'^new-activation-link/(?P<user_id>\d+)/$', new_activation_link),
     url(r'^register/success/$', register_success),
     url(r'^home/$', home),
     url(r'^game-board/', include('game_board.urls')),
     url(r'^admin/', include(admin.site.urls)),
-    url(r'^new/$', views.new_room, name='new_room'),
-    url(r'^(?P<label>[\w-]{,50})/$', views.chat_room, name='chat_room'),
 ]
