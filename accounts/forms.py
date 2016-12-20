@@ -1,11 +1,7 @@
 import datetime
-from django.conf.global_settings import MEDIA_ROOT
-
 from django.core.mail import send_mail
 from django import forms
 from django.contrib.auth.models import User
-from django.template import Context
-from django.template import Template
 from django.utils.translation import ugettext_lazy as _
 from NAME_TO_REFACTOR import settings
 from accounts.models import Profile
@@ -41,13 +37,14 @@ class RegistrationForm(forms.Form):
                                      data['password1'])
         u.is_active = False
         u.save()
-        profile=Profile()
-        profile.user=u
+        profile = Profile()
+        profile.user = u
         profile.activation_key = data['activation_key']
         profile.key_expires = datetime.datetime.strftime(datetime.datetime.now() + datetime.timedelta(days=2), "%Y-%m-%d %H:%M:%S")
+        profile.list_of_friends = []
         profile.save()
         return u
 
     def sendEmail(self, data):
-        message="http://127.0.0.1:8000/activate/"+data['activation_key']
+        message = "http://127.0.0.1:8000/activate/"+data['activation_key']
         send_mail(data['email_subject'], message, settings.EMAIL_HOST, [data['email']], fail_silently=False)

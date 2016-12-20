@@ -1,6 +1,8 @@
 import hashlib
 import random
 from datetime import datetime
+from django.db import transaction
+
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
 from django.contrib.auth.models import User
@@ -103,8 +105,16 @@ def new_activation_link(request, user_id):
     return redirect(home)
 
 
-def add_friend(request):
+@transaction.atomic
+def add_friend(request, user_id, friend_id):
     if request.method == 'POST':
-        form = RegistrationForm(request.POST)
-        if form.is_valid():
-            pass
+        user = User.objects.get(id=user_id)
+        friend = User.objects.get(id=friend_id)
+        if user is not None and friend is not None and (user.is_active and friend.is_active):
+            user_profile = Profile.objects.get(user)
+            friend_profile = Profile.objects.get(friend)
+            user_profile.add_friend(friend_id)
+            friend_profile.add_friend(user_id)
+            user_profile.save()
+            friend_profile.save()
+
