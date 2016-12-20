@@ -1,4 +1,4 @@
 language: python
 
 script:
-- python -m unittest log_writer_test
+- python -m unittest accounts.test
