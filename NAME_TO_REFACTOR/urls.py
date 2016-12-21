@@ -30,4 +30,5 @@ urlpatterns = [
     url(r'^friends/$',add_nothing),
     url(r'^game-board/', include('game_board.urls')),
     url(r'^admin/', include(admin.site.urls)),
+    url(r'^chat/', include('chat.urls')),
 ]
