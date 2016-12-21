@@ -12,3 +12,6 @@ class Profile(models.Model):
 
     def add_friend(self, friend_id):
         self.list_of_friends.append(friend_id)
+
+    def __unicode__(self):
+        return unicode(self.user) + unicode(self.list_of_friends)

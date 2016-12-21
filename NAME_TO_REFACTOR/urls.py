@@ -27,7 +27,7 @@ urlpatterns = [
     url(r'^new-activation-link/(?P<user_id>\d+)/$', new_activation_link),
     url(r'^register/success/$', register_success),
     url(r'^home/$', home),
-    url(r'^friends/$',add_nothing),
+    url(r'^friends/', include('accounts.urls')),
     url(r'^game-board/', include('game_board.urls')),
     url(r'^admin/', include(admin.site.urls)),
 ]
