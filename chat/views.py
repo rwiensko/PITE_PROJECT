@@ -2,6 +2,7 @@ import random
 import string
 from django.db import transaction
 from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
 from haikunator import Haikunator
 from chat.models import Room
 import logging
@@ -11,6 +12,7 @@ log = logging.getLogger(__name__)
 def about(request):
     return render(request, "chat/about.html")
 
+@login_required
 def new_room(request):
     """
     Randomly create a new room, and redirect to it.
@@ -25,6 +27,7 @@ def new_room(request):
             new_room = Room.objects.create(label=label)
     return redirect('chat:chat_room', label=label)
 
+@login_required
 def chat_room(request, label):
     """
     Room view - show the room, with latest messages.
