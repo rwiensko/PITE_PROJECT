@@ -33,3 +33,9 @@
     </table>
   </form>
 {% endblock content %}
+
+{% block afterbody %}
+  <script type="text/javascript" src="{% static 'js/jquery.js' %}"></script>
+  <script type="text/javascript" src='{% static "chat/javascripts/reconnecting-websocket.min.js" %}'></script>
+  <script type="text/javascript" src='{% static "chat/javascripts/chat.js" %}'></script>
+{% endblock afterbody %}
