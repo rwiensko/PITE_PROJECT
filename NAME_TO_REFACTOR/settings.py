@@ -64,7 +64,7 @@ ROOT_URLCONF = 'NAME_TO_REFACTOR.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(os.path.dirname(__file__), 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -77,9 +77,6 @@ TEMPLATES = [
     },
 ]
 
-TEMPLATE_DIRS = (
-      os.path.join(os.path.dirname(__file__), 'templates'),
-)
 
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
