@@ -1,4 +1,5 @@
 language: python
 
 script:
-- python manage.py test accounts chat
+  - python manage.py collectstatic
+  - python manage.py test accounts chat
