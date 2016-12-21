@@ -16,7 +16,7 @@ from accounts.models import Profile
 def register(request):
     if request.user.is_authenticated():
         return redirect(home)
-    registration_form = RegistrationForm()
+    form = RegistrationForm()
     if request.method == 'POST':
         form = RegistrationForm(request.POST)
         if form.is_valid():
@@ -123,5 +123,6 @@ def add_friend(request, user_id):
                     friend_profile.save()
             except IntegrityError:
                 return render(request, 'home.html', locals())
-            return render_to_response(request, 'home.html')
-    return render_to_response(request, 'home.html')
+        return render(request, 'home.html', locals())
+    return render(request, 'home.html', locals())
+
