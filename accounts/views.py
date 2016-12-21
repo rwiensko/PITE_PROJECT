@@ -12,6 +12,10 @@ from django.utils import timezone
 from accounts.forms import RegistrationForm
 from accounts.models import Profile
 
+import logging
+
+log = logging.getLogger(__name__)
+
 
 def register(request):
     if request.user.is_authenticated():
@@ -31,7 +35,7 @@ def register(request):
                 user_name_salt = user_name_salt.encode('utf8')
             data['activation_key'] = hashlib.sha1(salt+user_name_salt).hexdigest()
             data['email_subject'] = "Activation mail"
-
+            data['host_name'] = request.get_host()
             form.sendEmail(data)
             form.save(data)
 
