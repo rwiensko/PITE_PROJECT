@@ -109,20 +109,16 @@ def new_activation_link(request, user_id):
 def add_nothing(request):
     return render_to_response('friends.html', {'user': request.user})
 
-@transaction.atomic
+
 def add_friend(request, friend_id):
     if request.method == 'POST':
-        user_id = request.user.id
-        user = User.objects.get(id=user_id)
+        user = User.objects.get(id=request.POST['user'])
         friend = User.objects.get(id=friend_id)
         if user is not None and friend is not None and (user.is_active and friend.is_active):
-            try:
-                user_profile = Profile.objects.get(user)
-                user_profile.save()
-                user_profile.add_friend(friend_id)
-                with transaction.atomic():
-                    friend_profile = Profile.objects.get(friend)
-                    friend_profile.add_friend(user_id)
-                    friend_profile.save()
-            except IntegrityError:
-                render(request, 'home.html', locals())
+            user_profile = Profile.objects.get(user=user)
+            user_profile.add_friend(friend_id)
+            user_profile.save()
+            friend_profile = Profile.objects.get(user=friend)
+            friend_profile.add_friend(user.id)
+            friend_profile.save()
+
