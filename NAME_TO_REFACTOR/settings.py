@@ -174,6 +174,11 @@ LOGGING = {
             'propagate': True,
             'level': 'INFO'
         },
+        'accounts': {
+            'handlers': ['console'],
+            'propagate': False,
+            'level': 'DEBUG',
+        },
         'chat': {
             'handlers': ['console'],
             'propagate': False,

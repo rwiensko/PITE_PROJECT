@@ -12,6 +12,10 @@ from django.utils import timezone
 from accounts.forms import RegistrationForm
 from accounts.models import Profile
 
+import logging
+
+log = logging.getLogger(__name__)
+
 
 def register(request):
     if request.user.is_authenticated():
@@ -31,7 +35,7 @@ def register(request):
                 user_name_salt = user_name_salt.encode('utf8')
             data['activation_key'] = hashlib.sha1(salt+user_name_salt).hexdigest()
             data['email_subject'] = "Activation mail"
-
+            data['host_name'] = request.get_host()
             form.sendEmail(data)
             form.save(data)
 
@@ -106,23 +110,16 @@ def add_nothing(request):
     return render_to_response('friends.html', {'user': request.user})
 
 
-@transaction.atomic
-def add_friend(request, user_id):
-    if request.method == 'GET':
-        id = request.user.id
-        user = User.objects.get(id=id)
-        friend = User.objects.get(id=user_id)
+def add_friend(request, friend_id):
+    if request.method == 'POST':
+        user = User.objects.get(id=request.POST['user'])
+        friend = User.objects.get(id=friend_id)
         if user is not None and friend is not None and (user.is_active and friend.is_active):
-            try:
-                user_profile = Profile.objects.get(user)
-                user_profile.save()
-                user_profile.add_friend(user_id)
-                with transaction.atomic():
-                    friend_profile = Profile.objects.get(friend)
-                    friend_profile.add_friend(id)
-                    friend_profile.save()
-            except IntegrityError:
-                return render(request, 'home.html', locals())
-        return render(request, 'home.html', locals())
-    return render(request, 'home.html', locals())
+            user_profile = Profile.objects.get(user=user)
+            user_profile.add_friend(friend_id)
+            user_profile.save()
+            friend_profile = Profile.objects.get(user=friend)
+            friend_profile.add_friend(user.id)
+            friend_profile.save()
+
 

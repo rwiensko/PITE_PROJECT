@@ -46,5 +46,5 @@ class RegistrationForm(forms.Form):
         return u
 
     def sendEmail(self, data):
-        message = "http://127.0.0.1:8000/activate/"+data['activation_key']
+        message = "http://" + data['host_name'] + "/activate/"+data['activation_key']
         send_mail(data['email_subject'], message, settings.EMAIL_HOST, [data['email']], fail_silently=False)
