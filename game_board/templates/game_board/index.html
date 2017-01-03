@@ -3,14 +3,12 @@
 {% block title %}Game{% endblock %}
 
 {% block content %}
-<div id="main-content" class="content" data-username="{{ user.username }}">
-    <canvas id="board" width="400" height="400" style="border:1px solid #000000;">
-    </canvas>
-</div>
+<div id="main-content" class="content" data-player-id="{{ player.id }}"></div>
 {% endblock content %}
 
 {% block afterbody %}
 <link rel="stylesheet" type="text/css" href="{% static 'game_board/stylesheets/index.css' %}">
-<script type="text/javascript" src="{% static 'js/jquery.js' %}"></script>
-<script type="text/javascript" src="{% static 'game_board/javascripts/index.js' %}"></script>
+<script type="text/javascript" src="{% static 'game_board/javascripts/pixi.min.js' %}"></script>
+<script type="text/javascript" src='{% static "chat/javascripts/reconnecting-websocket.min.js" %}'></script>
+<script type="text/javascript" src="{% static 'game_board/javascripts/game.js' %}"></script>
 {% endblock afterbody %}
