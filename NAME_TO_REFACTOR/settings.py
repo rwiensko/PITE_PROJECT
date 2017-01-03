@@ -184,6 +184,11 @@ LOGGING = {
             'propagate': False,
             'level': 'DEBUG',
         },
+        'game_board': {
+            'handlers': ['console'],
+            'propagate': False,
+            'level': 'DEBUG',
+        },
     },
 }
 
@@ -194,6 +199,6 @@ CHANNEL_LAYERS = {
         "CONFIG": {
             "hosts": [os.environ.get('REDIS_URL', 'redis://localhost:6379')],
         },
-        "ROUTING": "chat.routing.channel_routing",
+        "ROUTING": "NAME_TO_REFACTOR.routing.channel_routing",
     },
 }
