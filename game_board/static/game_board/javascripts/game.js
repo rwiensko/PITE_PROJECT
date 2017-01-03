@@ -24,7 +24,7 @@ $(function() {
 
     var player;
     var players = {};
-    var last_x = 0, last_y = 0;
+    var last_x = 0, last_y = 0, counter = 0;
 
     function setup() {
       player = new Sprite(
@@ -37,6 +37,11 @@ $(function() {
       player.vy = 0;
       player.id = player_id;
       stage.addChild(player);
+
+      var players_ids = $('#main-content').data('players-ids');
+      for(var i in players_ids){
+        addPlayer(players_ids[i]);
+      }
 
       var left = keyboard(37),
         up = keyboard(38),
@@ -84,6 +89,7 @@ $(function() {
         };
 
       chatsock.onmessage = websocketListener;
+      chatsock.onclose = closeWebsocketHandler;
       gameLoop();
     }
 
@@ -100,11 +106,12 @@ $(function() {
           y: player.y
         }
       };
-      if (last_x != player.x || last_y != player.y) {
+      if (counter %5 == 0 && (last_x != player.x || last_y != player.y)) {
         chatsock.send(JSON.stringify(message));
       }
       last_x = player.x;
       last_y = player.y;
+      counter += 1;
 
       renderer.render(stage);
     }
@@ -123,6 +130,13 @@ $(function() {
         break;
       default:
         console.log(data);
+    }
+  }
+
+  function closeWebsocketHandler(event) {
+    for(var id in players){
+      players[id].destroy();
+      console.log(id);
     }
   }
 
@@ -146,7 +160,7 @@ $(function() {
 
   function removePlayer(data) {
     var id = data.id;
-    (players[id]).destroy(true);
+    players[id].destroy();
   }
 
   function movePlayer(data) {
