@@ -5,7 +5,7 @@ $(function() {
     var chatsock = new ReconnectingWebSocket(ws_scheme + '://' + window.location.host + window.location.pathname + player_id + '/');
 
     window.onbeforeunload = function(e) {
-
+      chatsock.send(JSON.stringify({action: "remove_player", remove_player: {id: player_id}}));
     }
 
     // Aliases
@@ -93,9 +93,12 @@ $(function() {
       player.x += player.vx;
       player.y += player.vy;
       var message = {
-        id: player.id,
-        x: player.x,
-        y: player.y
+        action: 'move_player',
+        move_player: {
+          id: player.id,
+          x: player.x,
+          y: player.y
+        }
       };
       if (last_x != player.x || last_y != player.y) {
         chatsock.send(JSON.stringify(message));
@@ -109,14 +112,14 @@ $(function() {
   function websocketListener(message) {
     var data = JSON.parse(message.data);
     switch (data.action) {
-      case "addPlayer":
-        addPlayer(data.addPlayer);
+      case "add_player":
+        addPlayer(data.add_player);
         break;
-      case "removePlayer":
-        removePlayer(data.removePlayer);
+      case "remove_player":
+        removePlayer(data.remove_player);
         break;
-      case "movePlayer":
-        movePlayer(data.movePlayer);
+      case "move_player":
+        movePlayer(data.move_player);
         break;
       default:
         console.log(data);
@@ -143,7 +146,7 @@ $(function() {
 
   function removePlayer(data) {
     var id = data.id;
-    players[id].destroy();
+    (players[id]).destroy(true);
   }
 
   function movePlayer(data) {
