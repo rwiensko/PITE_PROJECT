@@ -15,7 +15,7 @@ $(function() {
     var Sprite = PIXI.Sprite;
 
     var stage = new Container();
-    var renderer = autoDetectRenderer(400, 400);
+    var renderer = autoDetectRenderer(800, 600,{backgroundColor : 0x1099bb});
     $(renderer.view).appendTo("#main-content");
 
     loader
@@ -25,6 +25,47 @@ $(function() {
     var player;
     var players = {};
     var last_x = 0, last_y = 0, counter = 0;
+    //set stage
+
+    for (var j = 2; j < 15; j++) {
+
+        for (var i = 0; i < 20; i++) {
+            var brick = PIXI.Sprite.fromImage("/static/game_board/images/brick.png");
+            brick.buttonMode = true;
+            brick.x = 40*i;
+            brick.y = 40*j;
+            brick.interactive = true;
+            brick.on('mousedown', sendRequestToRemoveBrick);
+            stage.addChild(brick);
+        };
+    };
+
+    function removeHeh(){
+        stage.removeChild(this);
+    }
+
+    function sendRequestToRemoveBrick(){
+      var id = stage.getChildIndex(this)
+      console.log("remove brick heh: " + id);
+      //stage.removeChild(this);
+      var message = {
+        action: 'remove_brick',
+        remove_brick: {
+          id: id,
+        }
+      };
+
+      if ( Math.abs(this.x - player.x) <80 && Math.abs(this.y - player.y) <80){
+        chatsock.send(JSON.stringify(message));
+      }
+    }
+
+    function removeBrick(data){
+        var sprite = stage.get
+        console.log("remove brick: " + data.id);
+        stage.removeChildAt(data.id);
+    }
+
 
     function setup() {
       player = new Sprite(
@@ -109,6 +150,7 @@ $(function() {
       if (counter %5 == 0 && (last_x != player.x || last_y != player.y)) {
         chatsock.send(JSON.stringify(message));
       }
+
       last_x = player.x;
       last_y = player.y;
       counter += 1;
@@ -128,12 +170,16 @@ $(function() {
       case "move_player":
         movePlayer(data.move_player);
         break;
+       case "remove_brick":
+        removeBrick(data.remove_brick); //dodaj message do SendRequestToDeleteBrick
+        break;
       default:
         console.log(data);
     }
   }
 
   function closeWebsocketHandler(event) {
+
     for(var id in players){
       players[id].destroy();
       console.log(id);

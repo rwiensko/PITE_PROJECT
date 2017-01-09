@@ -21,7 +21,10 @@ def ws_receive(message):
     log.debug(data['action'])
     if data['action'] == 'remove_player':
         Player.objects.filter(id=data['remove_player']['id']).delete()
-    Group("game-board").send({'text': json.dumps(data)})
+    if data['action'] == 'remove_brick':
+        Group("game-board").send({'text' : json.dumps(data)})
+
+
 
 @channel_session
 def ws_disconnect(message):
