@@ -3,12 +3,17 @@
 {% block title %}Game{% endblock %}
 
 {% block content %}
-<div id="main-content" class="content" data-player-id="{{ player.id }}" data-players-ids="{{ players_ids }}"></div>
+<div id="main-content" class="content">
+  <p>
+    <a class="button button-primary" href="{% url 'game_board:new_room' %}">Create new game room</a>
+  </p>
+  <p class="quiet">
+    Or, you can visit <code>{{ request.scheme }}://{{ request.get_host }}/game-board/any-path-you-want</code>
+    to create a arbitrary room or join one whose name you know.
+  </p>
+</div>
 {% endblock content %}
 
 {% block afterbody %}
 <link rel="stylesheet" type="text/css" href="{% static 'game_board/stylesheets/index.css' %}">
-<script type="text/javascript" src="{% static 'game_board/javascripts/pixi.min.js' %}"></script>
-<script type="text/javascript" src='{% static "chat/javascripts/reconnecting-websocket.min.js" %}'></script>
-<script type="text/javascript" src="{% static 'game_board/javascripts/game.js' %}"></script>
 {% endblock afterbody %}

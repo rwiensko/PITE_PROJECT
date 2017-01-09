@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Game{% endblock %}
+
+{% block content %}
+<div id="main-content" class="content" data-player-id="{{ player.id }}" data-players-ids="{{ players_ids }}"></div>
+
+<input id="handle" type="hidden" value="{{ user.username }}">
+<form id="chatform">
+  <table id="chat" class="table table-hover">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Nick</th>
+        <th>Message</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for message in messages %}
+        <tr>
+          <td class="datetime">{{ message.formatted_timestamp }}</td>
+          <td>{{ message.handle }}</td>
+          <td>{{ message.message }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+    <tfoot>
+    <tr>
+      <td>Say something:</td>
+      <td colspan=2>
+        <input id="message" type="text" placeholder="message">
+        <button type="submit" id="go">Say it</button>
+      </td>
+    </tfoot>
+  </table>
+</form>
+{% endblock content %}
+
+{% block afterbody %}
+<link rel="stylesheet" type="text/css" href="{% static 'game_board/stylesheets/index.css' %}">
+<script type="text/javascript" src="{% static 'game_board/javascripts/pixi.min.js' %}"></script>
+<script type="text/javascript" src='{% static "chat/javascripts/reconnecting-websocket.min.js" %}'></script>
+<script type="text/javascript" src="{% static 'chat/javascripts/chat.js' %}"></script>
+<script type="text/javascript" src="{% static 'game_board/javascripts/game.js' %}"></script>
+{% endblock afterbody %}
