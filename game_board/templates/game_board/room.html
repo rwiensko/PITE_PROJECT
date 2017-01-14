@@ -3,37 +3,41 @@
 {% block title %}Game{% endblock %}
 
 {% block content %}
-<div id="main-content" class="content" data-player-id="{{ player.id }}" data-players-ids="{{ players_ids }}"></div>
-
-<input id="handle" type="hidden" value="{{ user.username }}">
-<form id="chatform">
-  <table id="chat" class="table table-hover">
-    <thead>
-      <tr>
-        <th>Date</th>
-        <th>Nick</th>
-        <th>Message</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for message in messages %}
+<div class="container">
+  <div id="main-content" class="content" data-player-id="{{ player.id }}" data-players-ids="{{ players_ids }}"></div>
+  <hr />
+  <div id="chat-container">
+    <input id="handle" type="hidden" value="{{ user.username }}">
+    <form id="chatform">
+      <table id="chat" class="table table-hover">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Nick</th>
+            <th>Message</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for message in messages %}
+            <tr>
+              <td class="datetime">{{ message.formatted_timestamp }}</td>
+              <td>{{ message.handle }}</td>
+              <td>{{ message.message }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+        <tfoot>
         <tr>
-          <td class="datetime">{{ message.formatted_timestamp }}</td>
-          <td>{{ message.handle }}</td>
-          <td>{{ message.message }}</td>
-        </tr>
-      {% endfor %}
-    </tbody>
-    <tfoot>
-    <tr>
-      <td>Say something:</td>
-      <td colspan=2>
-        <input id="message" type="text" placeholder="message">
-        <button type="submit" id="go">Say it</button>
-      </td>
-    </tfoot>
-  </table>
-</form>
+          <td>Say something:</td>
+          <td colspan=2>
+            <input id="message" type="text" placeholder="message">
+            <button type="submit" id="go">Say it</button>
+          </td>
+        </tfoot>
+      </table>
+    </form>
+  </div>
+</div>
 {% endblock content %}
 
 {% block afterbody %}
