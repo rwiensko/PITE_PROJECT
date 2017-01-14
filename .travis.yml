@@ -1,5 +1,9 @@
 language: python
-
+install:
+  - pip install -r requirements.txt
+  - pip install coveralls
 script:
   - python manage.py collectstatic --no-input
-  - python manage.py test accounts chat
+  - coverage run --source=NAME_TO_REFACTOR,accounts,chat,game_board manage.py test accounts chat
+after_success:
+  coveralls

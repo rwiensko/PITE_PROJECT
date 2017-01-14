@@ -5,29 +5,35 @@ $(function() {
     room_name = room_name[room_name.length - 2];
     var chatsock = new ReconnectingWebSocket(ws_scheme + '://' + window.location.host + "/chat/" + room_name + "/");
 
+    var chat_height = $('#chat-container')[0].scrollHeight;
+    $('#chat-container').scrollTop(chat_height);
+
     chatsock.onmessage = function(message) {
         var data = JSON.parse(message.data);
-        var chat = $("#chat")
-        var ele = $('<tr></tr>')
+        var chat = $("#chat");
+        var ele = $('<tr></tr>');
 
         ele.append(
             $('<td class="datetime"></td>').text(data.timestamp)
-        )
+        );
         ele.append(
             $("<td></td>").text(data.handle)
-        )
+        );
         ele.append(
             $("<td></td>").text(data.message)
-        )
+        );
 
-        chat.append(ele)
+        chat.append(ele);
+
+        chat_height = $('#chat-container')[0].scrollHeight;
+        $('#chat-container').scrollTop(chat_height);
     };
 
     $("#chatform").on("submit", function(event) {
         var message = {
             handle: $('#handle').val(),
             message: $('#message').val(),
-        }
+        };
         chatsock.send(JSON.stringify(message));
         $("#message").val('').focus();
         return false;

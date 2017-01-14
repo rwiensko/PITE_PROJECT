@@ -1,3 +1,9 @@
 .content{
   text-align: center;
 }
+
+#chat-container{
+  height: 150px;
+  overflow-x: hidden;
+  overflow-y: scroll;
+}
