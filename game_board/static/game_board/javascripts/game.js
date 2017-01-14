@@ -71,9 +71,10 @@ $(function() {
       player = new Sprite(
         loader.resources["/static/game_board/images/avatar.png"].texture
       );
-      player.scale.set(0.5, 0.5);
+      player.scale.set(0.35, 0.35);
       player.x = 10;
       player.y = 10;
+      player.field = {x: 0, y: 0};
       player.vx = 0;
       player.vy = 0;
       player.id = player_id;
@@ -90,43 +91,19 @@ $(function() {
         down = keyboard(40);
 
         left.press = function() {
-          player.vx = -5;
-          player.vy = 0;
-        };
-        left.release = function() {
-          if (!right.isDown && player.vy === 0) {
-          player.vx = 0;
-          }
+          player.field["x"] -= 1;
         };
 
         up.press = function() {
-          player.vy = -5;
-          player.vx = 0;
-        };
-        up.release = function() {
-          if (!down.isDown && player.vx === 0) {
-          player.vy = 0;
-          }
+          player.field["y"] -= 1;
         };
 
         right.press = function() {
-          player.vx = 5;
-          player.vy = 0;
-        };
-        right.release = function() {
-          if (!left.isDown && player.vy === 0) {
-          player.vx = 0;
-          }
+          player.field["x"] += 1;
         };
 
         down.press = function() {
-          player.vy = 5;
-          player.vx = 0;
-        };
-        down.release = function() {
-          if (!up.isDown && player.vx === 0) {
-          player.vy = 0;
-          }
+          player.field["y"] += 1;
         };
 
       chatsock.onmessage = websocketListener;
@@ -137,8 +114,8 @@ $(function() {
     function gameLoop() {
       requestAnimationFrame(gameLoop);
 
-      player.x += player.vx;
-      player.y += player.vy;
+      player.x = player.field["x"] * 40;
+      player.y = player.field["y"] * 40;
       var message = {
         action: 'move_player',
         move_player: {
@@ -147,9 +124,9 @@ $(function() {
           y: player.y
         }
       };
-      if (counter %5 == 0 && (last_x != player.x || last_y != player.y)) {
+      if (last_x != player.x || last_y != player.y)
         chatsock.send(JSON.stringify(message));
-      }
+
 
       last_x = player.x;
       last_y = player.y;
@@ -196,7 +173,7 @@ $(function() {
 
     var new_player = players[id];
 
-    new_player.scale.set(0.5, 0.5);
+    new_player.scale.set(0.3125, 0.3125);
     new_player.x = 10;
     new_player.y = 10;
     new_player.vx = 0;
@@ -216,40 +193,5 @@ $(function() {
       moved_player.x = data.x;
       moved_player.y = data.y;
     }
-  }
-
-  function keyboard(keyCode) {
-    var key = {};
-    key.code = keyCode;
-    key.isDown = false;
-    key.isUp = true;
-    key.press = undefined;
-    key.release = undefined;
-    //The `downHandler`
-    key.downHandler = function(event) {
-      if (event.keyCode === key.code) {
-        if (key.isUp && key.press) key.press();
-        key.isDown = true;
-        key.isUp = false;
-      }
-      event.preventDefault();
-    };
-    //The `upHandler`
-    key.upHandler = function(event) {
-      if (event.keyCode === key.code) {
-        if (key.isDown && key.release) key.release();
-        key.isDown = false;
-        key.isUp = true;
-      }
-      event.preventDefault();
-    };
-    //Attach event listeners
-    window.addEventListener(
-      "keydown", key.downHandler.bind(key), false
-    );
-    window.addEventListener(
-      "keyup", key.upHandler.bind(key), false
-    );
-    return key;
   }
 });
