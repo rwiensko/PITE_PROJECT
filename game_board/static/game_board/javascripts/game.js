@@ -20,25 +20,14 @@ $(function() {
 
     loader
       .add("/static/game_board/images/avatar.png")
+      .add("/static/game_board/images/brick.png")
       .load(setup);
 
-    var player;
+    var player ;
     var players = {};
-    var last_x = 0, last_y = 0, counter = 0;
+    var counter = 0;
     //set stage
-
-    for (var j = 2; j < 15; j++) {
-
-        for (var i = 0; i < 20; i++) {
-            var brick = PIXI.Sprite.fromImage("/static/game_board/images/brick.png");
-            brick.buttonMode = true;
-            brick.x = 40*i;
-            brick.y = 40*j;
-            brick.interactive = true;
-            brick.on('mousedown', sendRequestToRemoveBrick);
-            stage.addChild(brick);
-        };
-    };
+    var fields = [];
 
     function removeHeh(){
         stage.removeChild(this);
@@ -52,6 +41,7 @@ $(function() {
         action: 'remove_brick',
         remove_brick: {
           id: id,
+          field: this.field
         }
       };
 
@@ -62,21 +52,45 @@ $(function() {
 
     function removeBrick(data){
         var sprite = stage.get
-        console.log("remove brick: " + data.id);
+        fields[data.field["y"]][data.field["x"]] = false;
         stage.removeChildAt(data.id);
     }
 
 
     function setup() {
+
+      for(var j = 0; j < 15; j++){
+        fields[j] = [];
+        for(var i = 0; i < 20; i++)
+          fields[j][i] = false;
+      }
+
+      for (var j = 2; j < 15; j++) {
+        fields[j] = [];
+        for (var i = 0; i < 20; i++) {
+          fields[j][i] = true;
+          var brick = new Sprite(
+            loader.resources["/static/game_board/images/brick.png"].texture
+          );
+          brick.buttonMode = true;
+          brick.x = 40*i;
+          brick.y = 40*j;
+          brick.field = {x: i, y: j};
+          brick.interactive = true;
+          brick.on('mousedown', sendRequestToRemoveBrick);
+          stage.addChild(brick);
+        };
+      };
+
       player = new Sprite(
         loader.resources["/static/game_board/images/avatar.png"].texture
       );
       player.scale.set(0.35, 0.35);
       player.x = 10;
       player.y = 10;
+      player.last_x = player.x;
+      player.last_y = player.y;
       player.field = {x: 0, y: 0};
-      player.vx = 0;
-      player.vy = 0;
       player.id = player_id;
       stage.addChild(player);
 
@@ -91,19 +105,39 @@ $(function() {
         down = keyboard(40);
 
         left.press = function() {
-          player.field["x"] -= 1;
+          var field = {
+            x: player.field["x"] - 1,
+            y: player.field["y"]
+          };
+          if(canMoveTo(field["x"], field["y"]))
+            player.field["x"] -= 1;
         };
 
         up.press = function() {
-          player.field["y"] -= 1;
+          var field = {
+            x: player.field["x"],
+            y: player.field["y"] - 1
+          };
+          if(canMoveTo(field["x"], field["y"]))
+            player.field["y"] -= 1;
         };
 
         right.press = function() {
-          player.field["x"] += 1;
+          var field = {
+            x: player.field["x"] + 1,
+            y: player.field["y"]
+          };
+          if(canMoveTo(field["x"], field["y"]))
+            player.field["x"] += 1;
         };
 
         down.press = function() {
-          player.field["y"] += 1;
+          var field = {
+            x: player.field["x"],
+            y: player.field["y"] + 1
+          };
+          if(canMoveTo(field["x"], field["y"]))
+            player.field["y"] += 1;
         };
 
       chatsock.onmessage = websocketListener;
@@ -124,12 +158,12 @@ $(function() {
           y: player.y
         }
       };
-      if (last_x != player.x || last_y != player.y)
+      if (player.last_x != player.x || player.last_y != player.y)
         chatsock.send(JSON.stringify(message));
 
 
-      last_x = player.x;
-      last_y = player.y;
+      player.last_x = player.x;
+      player.last_y = player.y;
       counter += 1;
 
       renderer.render(stage);
@@ -176,8 +210,6 @@ $(function() {
     new_player.scale.set(0.3125, 0.3125);
     new_player.x = 10;
     new_player.y = 10;
-    new_player.vx = 0;
-    new_player.vy = 0;
     stage.addChild(new_player);
   }
 
@@ -193,5 +225,10 @@ $(function() {
       moved_player.x = data.x;
       moved_player.y = data.y;
     }
+  }
+
+  function canMoveTo(x, y) {
+    var in_bounds = x >= 0 && y >= 0 && x < 20 && y < 15;
+    return in_bounds && !fields[y][x];
   }
 });
