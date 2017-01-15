@@ -27,8 +27,7 @@ def new_room(request):
 def game_room(request, label):
     players_ids = list(Player.objects.filter(label=label).values('id'))
     players_ids = json.dumps(players_ids)
-    user = User.objects.get(id=request.user.id)
-    player = Player.objects.create(label=label, user=user)
+    player = Player.objects.create(label=label, user=request.user)
     room, created = Room.objects.get_or_create(label=label)
     messages = reversed(room.messages.order_by('-timestamp')[:50])
 

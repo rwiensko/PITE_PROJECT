@@ -23,69 +23,30 @@ $(function() {
 
     loader
       .add("/static/game_board/images/avatar.png")
+      .add("/static/game_board/images/brick.png")
+      .add("/static/game_board/images/rock_brick.png")
+      .add("/static/game_board/images/diamond.png")
+      .add("/static/game_board/images/gold_brick.png")
       .load(setup);
 
-    var player;
+    var player ;
     var players = {};
-    var last_x = 0, last_y = 0, counter = 0;
     //set stage
 
-    for (var j = 2; j < 15; j++) {
+    var fields = [];
 
-        for (var i = 0; i < 20; i++) {
-
-            if (j == 5 && i%5==1){
-                var diamond = PIXI.Sprite.fromImage("/static/game_board/images/diamond.png");
-                diamond.buttonMode = true;
-                diamond.x = 40*i;
-                diamond.y = 40*j;
-                diamond.interactive = true;
-                diamond.on('mousedown', setHaveDiamondToTrue);
-                stage.addChild(diamond);
-            }
-            if (j<9){
-                if (i%5 == 1 && j==5) continue
-                var brick = PIXI.Sprite.fromImage("/static/game_board/images/brick.png");
-                brick.buttonMode = true;
-                brick.x = 40*i;
-                brick.y = 40*j;
-                brick.interactive = true;
-                brick.on('mousedown', sendRequestToRemoveBrick);
-                stage.addChild(brick);
-            }
-            if (j>8 && j<14){
-                var rock_brick = PIXI.Sprite.fromImage("/static/game_board/images/rock_brick.png");
-                rock_brick.buttonMode = true;
-                rock_brick.x = 40*i;
-                rock_brick.y = 40*j;
-                rock_brick.interactive = true;
-                rock_brick.on('mousedown', sendRequestToRemoveRockBrick);
-                stage.addChild(rock_brick);
-            }
-            if (j == 14){
-                var gold = PIXI.Sprite.fromImage("/static/game_board/images/gold_brick.png");
-                gold.buttonMode = true;
-                gold.x = 40*i;
-                gold.y = 40*j;
-                gold.interactive = true;
-                gold.on('mousedown', sendRequestPlayerWon);
-                stage.addChild(gold);
-            }
-
-        };
-    };
 
     function sendRequestPlayerWon(){
-        var id =stage.getChildIndex(this);
-        console.log("gold id: " +id)
-        var message = {
-            action: 'remove_gold',
-            remove_gold: {
-            id: id,
-            }
-        };
+      var id =stage.getChildIndex(this);
+      console.log("gold id: " +id)
+      var message = {
+        action: 'remove_gold',
+        remove_gold: {
+          id: id,
+        }
+      };
 
-    if ( Math.abs(this.x - player.x) <80 && Math.abs(this.y - player.y)  <80 ){
+      if ( Math.abs(this.x - player.x) <80 && Math.abs(this.y - player.y)  <80 ){
         chatsock.send(JSON.stringify(message));
       }
     }
@@ -105,32 +66,34 @@ $(function() {
     }
 
     function setHaveDiamondToTrue(){
-        var id =stage.getChildIndex(this);
-        console.log("diamond id: " +id)
-        var message = {
-            action: 'remove_diamond',
-            remove_diamond: {
-            id: id,
-            }
-        };
+      var id =stage.getChildIndex(this);
+      console.log("diamond id: " +id)
+      var message = {
+        action: 'remove_diamond',
+        remove_diamond: {
+          id: id,
+          field: this.field
+        }
+      };
 
-    if ( Math.abs(this.x - player.x) <80 && Math.abs(this.y - player.y)  <80 ){
+      if ( Math.abs(this.x - player.x) <80 && Math.abs(this.y - player.y)  <80 ){
         player.have_diamond = true;
         chatsock.send(JSON.stringify(message));
       }
     }
 
     function sendRequestToRemoveRockBrick(){
-        var id =stage.getChildIndex(this);
-        console.log("remove rock brick: " +id)
-        var message = {
-            action: 'remove_rock_brick',
-            remove_rock_brick: {
-            id: id,
-            }
-        };
+      var id =stage.getChildIndex(this);
+      console.log("remove rock brick: " +id)
+      var message = {
+        action: 'remove_rock_brick',
+        remove_rock_brick: {
+          id: id,
+          field: this.field
+        }
+      };
 
-    if ( Math.abs(this.x - player.x) <80 && Math.abs(this.y - player.y)  <80  && player.have_diamond == true){
+      if ( Math.abs(this.x - player.x) <80 && Math.abs(this.y - player.y)  <80  && player.have_diamond == true){
         chatsock.send(JSON.stringify(message));
       }
 
@@ -143,6 +106,7 @@ $(function() {
         action: 'remove_brick',
         remove_brick: {
           id: id,
+          field: this.field
         }
       };
 
@@ -152,23 +116,73 @@ $(function() {
     }
 
     function removeBrick(data){
+        fields[data.field["y"]][data.field["x"]] = false;
         console.log("remove brick: " + data.id);
         stage.removeChildAt(data.id);
     }
 
 
     function setup() {
+
+      // Setup fields
+      for(var j = 0; j < 15; j++){
+        fields[j] = [];
+        for(var i = 0; i < 20; i++)
+          fields[j][i] = j > 1;
+      }
+
+      // draw bricks
+      for (var j = 2; j < 15; j++) {
+        for (var i = 0; i < 20; i++) {
+          drawBrick(i, j);
+        };
+      };
+
       player = new Sprite(
         loader.resources["/static/game_board/images/avatar.png"].texture
       );
       player.scale.set(0.35, 0.35);
       player.x = 10;
       player.y = 10;
+      player.last_x = player.x;
+      player.last_y = player.y;
       player.field = {x: 0, y: 0};
-      player.vx = 0;
-      player.vy = 0;
       player.id = player_id;
       player.have_diamond = false;
+      player.isStanding = function() {
+        return fields[this.field["y"] + 1][this.field["x"]];
+      }
+      player.animateAndSendPosition = function() {
+        // Gravity simulation
+        if(!this.isStanding() && this.jumping_time == null){
+          this.jumping_time = new Date();
+        } else if(this.isStanding()){
+          this.jumping_time = null;
+        } else {
+          var now = new Date();
+          if(now.getTime() - this.jumping_time.getTime() > 400){
+            this.field["y"] += 1;
+            this.jumping_time = null;
+          }
+        }
+
+        this.x = this.field["x"] * 40;
+        this.y = this.field["y"] * 40;
+
+        var message = {
+          action: 'move_player',
+          move_player: {
+            id: player.id,
+            x: player.x,
+            y: player.y
+          }
+        };
+        if (player.last_x != player.x || player.last_y != player.y)
+          chatsock.send(JSON.stringify(message));
+
+        player.last_x = player.x;
+        player.last_y = player.y;
+      }
       stage.addChild(player);
 
       var players_ids = $('#main-content').data('players-ids');
@@ -182,19 +196,39 @@ $(function() {
         down = keyboard(40);
 
         left.press = function() {
-          player.field["x"] -= 1;
+          var field = {
+            x: player.field["x"] - 1,
+            y: player.field["y"]
+          };
+          if(canMoveTo(field["x"], field["y"]))
+            player.field["x"] -= 1;
         };
 
         up.press = function() {
-          player.field["y"] -= 1;
+          var field = {
+            x: player.field["x"],
+            y: player.field["y"] - 1
+          };
+          if(canMoveTo(field["x"], field["y"]) && player.isStanding())
+            player.field["y"] -= 1;
         };
 
         right.press = function() {
-          player.field["x"] += 1;
+          var field = {
+            x: player.field["x"] + 1,
+            y: player.field["y"]
+          };
+          if(canMoveTo(field["x"], field["y"]))
+            player.field["x"] += 1;
         };
 
         down.press = function() {
-          player.field["y"] += 1;
+          var field = {
+            x: player.field["x"],
+            y: player.field["y"] + 1
+          };
+          if(canMoveTo(field["x"], field["y"]))
+            player.field["y"] += 1;
         };
 
       chatsock.onmessage = websocketListener;
@@ -205,23 +239,7 @@ $(function() {
     function gameLoop() {
       requestAnimationFrame(gameLoop);
 
-      player.x = player.field["x"] * 40;
-      player.y = player.field["y"] * 40;
-      var message = {
-        action: 'move_player',
-        move_player: {
-          id: player.id,
-          x: player.x,
-          y: player.y
-        }
-      };
-      if (last_x != player.x || last_y != player.y)
-        chatsock.send(JSON.stringify(message));
-
-
-      last_x = player.x;
-      last_y = player.y;
-      counter += 1;
+      player.animateAndSendPosition();
       gameStage.addChild(stage);
       gameStage.addChild(gameOverStage);
       renderer.render(gameStage);
@@ -277,8 +295,6 @@ $(function() {
     new_player.scale.set(0.3125, 0.3125);
     new_player.x = 10;
     new_player.y = 10;
-    new_player.vx = 0;
-    new_player.vy = 0;
     stage.addChild(new_player);
   }
 
@@ -293,6 +309,63 @@ $(function() {
       var moved_player = players[data.id];
       moved_player.x = data.x;
       moved_player.y = data.y;
+    }
+  }
+
+  function canMoveTo(i, j) {
+    var in_bounds = i >= 0 && j >= 0 && i < 20 && j < 15;
+    return in_bounds && !fields[j][i];
+  }
+
+  function drawBrick(i, j) {
+    if (j == 5 && i%5==1){
+        var diamond = new Sprite(
+          loader.resources["/static/game_board/images/diamond.png"].texture
+        );
+        diamond.buttonMode = true;
+        diamond.x = 40*i;
+        diamond.y = 40*j;
+        diamond.field = {x: i, y: j};
+        diamond.interactive = true;
+        diamond.on('mousedown', setHaveDiamondToTrue);
+        stage.addChild(diamond);
+    }
+    if (j<9){
+        if (i%5 == 1 && j==5) return
+        var brick = new Sprite(
+          loader.resources["/static/game_board/images/brick.png"].texture
+        )
+        brick.buttonMode = true;
+        brick.x = 40*i;
+        brick.y = 40*j;
+        brick.field = {x: i, y: j};
+        brick.interactive = true;
+        brick.on('mousedown', sendRequestToRemoveBrick);
+        stage.addChild(brick);
+    }
+    if (j>8 && j<14){
+        var rock_brick = new Sprite(
+          loader.resources["/static/game_board/images/rock_brick.png"].texture
+        );
+        rock_brick.buttonMode = true;
+        rock_brick.x = 40*i;
+        rock_brick.y = 40*j;
+        rock_brick.field = {x: i, y: j};
+        rock_brick.interactive = true;
+        rock_brick.on('mousedown', sendRequestToRemoveRockBrick);
+        stage.addChild(rock_brick);
+    }
+    if (j == 14){
+        var gold = new Sprite(
+          loader.resources["/static/game_board/images/gold_brick.png"].texture
+        );
+        gold.buttonMode = true;
+        gold.x = 40*i;
+        gold.y = 40*j;
+        gold.field = {x: i, y: j};
+        gold.interactive = true;
+        gold.on('mousedown', sendRequestPlayerWon);
+        stage.addChild(gold);
     }
   }
 });

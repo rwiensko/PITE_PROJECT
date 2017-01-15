@@ -22,16 +22,14 @@ def ws_connect(message):
 def ws_receive(message):
     data = json.loads(message['text'])
     label = message.channel_session['room']
-    log.debug(data['action'])
     if data['action'] == 'remove_player':
         Player.objects.filter(id=data['remove_player']['id']).delete()
     if data['action'] == 'remove_gold':
         data['username'] = Player.objects.get(id=data['remove_gold']['player_id']).profile.user.username
     Group("game-board-" + label).send({'text': json.dumps(data)})
-    
+
 
 @channel_session
 def ws_disconnect(message):
-    log.debug("ws_disconnect")
     label = message.channel_session['room']
     Group("game-board-" + label).discard(message.reply_channel)
