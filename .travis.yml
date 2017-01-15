@@ -4,6 +4,6 @@ install:
   - pip install coveralls
 script:
   - python manage.py collectstatic --no-input
-  - coverage run --source=accounts,chat,game_board manage.py test accounts chat
+  - coverage run --source=accounts,chat,game_board manage.py test accounts chat game_board
 after_success:
   coveralls
