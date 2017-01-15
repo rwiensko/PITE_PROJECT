@@ -59,26 +59,17 @@ $(function() {
 
     function setup() {
 
+      // Setup fields
       for(var j = 0; j < 15; j++){
         fields[j] = [];
         for(var i = 0; i < 20; i++)
-          fields[j][i] = false;
+          fields[j][i] = j > 1;
       }
 
+      // draw bricks
       for (var j = 2; j < 15; j++) {
-        fields[j] = [];
         for (var i = 0; i < 20; i++) {
-          fields[j][i] = true;
-          var brick = new Sprite(
-            loader.resources["/static/game_board/images/brick.png"].texture
-          );
-          brick.buttonMode = true;
-          brick.x = 40*i;
-          brick.y = 40*j;
-          brick.field = {x: i, y: j};
-          brick.interactive = true;
-          brick.on('mousedown', sendRequestToRemoveBrick);
-          stage.addChild(brick);
+          drawBrick(i, j);
         };
       };
 
@@ -227,8 +218,21 @@ $(function() {
     }
   }
 
-  function canMoveTo(x, y) {
-    var in_bounds = x >= 0 && y >= 0 && x < 20 && y < 15;
-    return in_bounds && !fields[y][x];
+  function canMoveTo(i, j) {
+    var in_bounds = i >= 0 && j >= 0 && i < 20 && j < 15;
+    return in_bounds && !fields[j][i];
+  }
+
+  function drawBrick(i, j) {
+    var brick = new Sprite(
+      loader.resources["/static/game_board/images/brick.png"].texture
+    );
+    brick.buttonMode = true;
+    brick.x = 40*i;
+    brick.y = 40*j;
+    brick.field = {x: i, y: j};
+    brick.interactive = true;
+    brick.on('mousedown', sendRequestToRemoveBrick);
+    stage.addChild(brick);
   }
 });
