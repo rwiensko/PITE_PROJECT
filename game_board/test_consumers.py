@@ -1,5 +1,6 @@
 from channels import Channel, Group
 from channels.tests import ChannelTestCase
+from django.contrib.auth.models import User
 from game_board.consumers import ws_connect, ws_receive, ws_disconnect
 from game_board.models import Player
 from chat.models import Room
@@ -8,6 +9,8 @@ import json
 class TestConsumers(ChannelTestCase):
     def setUp(self):
         self.room = Room.objects.create(label="dodoni")
+        self.current_user = User.objects.create_user("wojtek", "wojtarz@tlen.pl", "marik1234")
+        self.current_user.is_active = True
 
     def test_ws_connect(self):
         Channel(u"first-channel").send({})
@@ -42,7 +45,7 @@ class TestConsumers(ChannelTestCase):
         message = self.get_next_message(u"channel", require=True)
         message['path'] = "/game-board/dodoni/1/"
         message.reply_channel = Channel(u"reply-channel")
-        player = Player.objects.create(label="dodoni")
+        player = Player.objects.create(label="dodoni", user=self.current_user)
         ws_connect(message)
         ws_receive(message)
         self.assertEqual(len(Player.objects.filter(id=1)), 0)

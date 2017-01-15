@@ -148,6 +148,7 @@ $(function() {
         return fields[this.field["y"] + 1][this.field["x"]];
       }
       player.animateAndSendPosition = function() {
+        // Gravity simulation
         if(!this.isStanding() && this.jumping_time == null){
           this.jumping_time = new Date();
         } else if(this.isStanding()){
