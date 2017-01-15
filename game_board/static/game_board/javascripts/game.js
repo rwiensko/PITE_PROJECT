@@ -14,29 +14,89 @@ $(function() {
     var loader = PIXI.loader;
     var Sprite = PIXI.Sprite;
 
+    var gameStage = new Container();
     var stage = new Container();
+    var gameOverStage = new Container();
+
     var renderer = autoDetectRenderer(800, 600,{backgroundColor : 0x1099bb});
     $(renderer.view).appendTo("#main-content");
 
     loader
       .add("/static/game_board/images/avatar.png")
       .add("/static/game_board/images/brick.png")
+      .add("/static/game_board/images/rock_brick.png")
+      .add("/static/game_board/images/diamond.png")
+      .add("/static/game_board/images/gold_brick.png")
       .load(setup);
 
     var player ;
     var players = {};
-    var counter = 0;
     //set stage
+
     var fields = [];
 
-    function removeHeh(){
-        stage.removeChild(this);
+
+    function sendRequestPlayerWon(){
+      var id =stage.getChildIndex(this);
+      console.log("gold id: " +id)
+      var message = {
+        action: 'remove_gold',
+        remove_gold: {
+          id: id,
+        }
+      };
+
+      if ( Math.abs(this.x - player.x) <80 && Math.abs(this.y - player.y)  <80 ){
+        chatsock.send(JSON.stringify(message));
+      }
+    }
+
+    function gameOver(data){
+        var gold = PIXI.Sprite.fromImage("/static/game_board/images/gold_brick.png");
+        gold.x = 40;
+        gold.y = 40;
+        gameOverStage.addChild(gold);
+        stage.visible = false;
+        gameOverStage.visible = true;
+    }
+
+    function setHaveDiamondToTrue(){
+      var id =stage.getChildIndex(this);
+      console.log("diamond id: " +id)
+      var message = {
+        action: 'remove_diamond',
+        remove_diamond: {
+          id: id,
+          field: this.field
+        }
+      };
+
+      if ( Math.abs(this.x - player.x) <80 && Math.abs(this.y - player.y)  <80 ){
+        player.have_diamond = true;
+        chatsock.send(JSON.stringify(message));
+      }
+    }
+
+    function sendRequestToRemoveRockBrick(){
+      var id =stage.getChildIndex(this);
+      console.log("remove rock brick: " +id)
+      var message = {
+        action: 'remove_rock_brick',
+        remove_rock_brick: {
+          id: id,
+          field: this.field
+        }
+      };
+
+      if ( Math.abs(this.x - player.x) <80 && Math.abs(this.y - player.y)  <80  && player.have_diamond == true){
+        chatsock.send(JSON.stringify(message));
+      }
+
     }
 
     function sendRequestToRemoveBrick(){
-      var id = stage.getChildIndex(this)
+      var id = stage.getChildIndex(this);
       console.log("remove brick heh: " + id);
-      //stage.removeChild(this);
       var message = {
         action: 'remove_brick',
         remove_brick: {
@@ -51,8 +111,8 @@ $(function() {
     }
 
     function removeBrick(data){
-        var sprite = stage.get
         fields[data.field["y"]][data.field["x"]] = false;
+        console.log("remove brick: " + data.id);
         stage.removeChildAt(data.id);
     }
 
@@ -83,6 +143,7 @@ $(function() {
       player.last_y = player.y;
       player.field = {x: 0, y: 0};
       player.id = player_id;
+      player.have_diamond = false;
       stage.addChild(player);
 
       var players_ids = $('#main-content').data('players-ids');
@@ -155,9 +216,9 @@ $(function() {
 
       player.last_x = player.x;
       player.last_y = player.y;
-      counter += 1;
-
-      renderer.render(stage);
+      gameStage.addChild(stage);
+      gameStage.addChild(gameOverStage);
+      renderer.render(gameStage);
     }
 
   function websocketListener(message) {
@@ -173,7 +234,16 @@ $(function() {
         movePlayer(data.move_player);
         break;
        case "remove_brick":
-        removeBrick(data.remove_brick); //dodaj message do SendRequestToDeleteBrick
+        removeBrick(data.remove_brick);
+        break;
+       case "remove_rock_brick":
+        removeBrick(data.remove_rock_brick);
+        break;
+       case "remove_diamond":
+        removeBrick(data.remove_diamond);
+        break;
+       case "remove_gold":
+        gameOver(data.remove_gold);
         break;
       default:
         console.log(data);
@@ -224,15 +294,54 @@ $(function() {
   }
 
   function drawBrick(i, j) {
-    var brick = new Sprite(
-      loader.resources["/static/game_board/images/brick.png"].texture
-    );
-    brick.buttonMode = true;
-    brick.x = 40*i;
-    brick.y = 40*j;
-    brick.field = {x: i, y: j};
-    brick.interactive = true;
-    brick.on('mousedown', sendRequestToRemoveBrick);
-    stage.addChild(brick);
+    if (j == 5 && i%5==1){
+        var diamond = new Sprite(
+          loader.resources["/static/game_board/images/diamond.png"].texture
+        );
+        diamond.buttonMode = true;
+        diamond.x = 40*i;
+        diamond.y = 40*j;
+        diamond.field = {x: i, y: j};
+        diamond.interactive = true;
+        diamond.on('mousedown', setHaveDiamondToTrue);
+        stage.addChild(diamond);
+    }
+    if (j<9){
+        if (i%5 == 1 && j==5) return
+        var brick = new Sprite(
+          loader.resources["/static/game_board/images/brick.png"].texture
+        )
+        brick.buttonMode = true;
+        brick.x = 40*i;
+        brick.y = 40*j;
+        brick.field = {x: i, y: j};
+        brick.interactive = true;
+        brick.on('mousedown', sendRequestToRemoveBrick);
+        stage.addChild(brick);
+    }
+    if (j>8 && j<14){
+        var rock_brick = new Sprite(
+          loader.resources["/static/game_board/images/rock_brick.png"].texture
+        );
+        rock_brick.buttonMode = true;
+        rock_brick.x = 40*i;
+        rock_brick.y = 40*j;
+        rock_brick.field = {x: i, y: j};
+        rock_brick.interactive = true;
+        rock_brick.on('mousedown', sendRequestToRemoveRockBrick);
+        stage.addChild(rock_brick);
+    }
+    if (j == 14){
+        var gold = new Sprite(
+          loader.resources["/static/game_board/images/gold_brick.png"].texture
+        );
+        gold.buttonMode = true;
+        gold.x = 40*i;
+        gold.y = 40*j;
+        gold.field = {x: i, y: j};
+        gold.interactive = true;
+        gold.on('mousedown', sendRequestPlayerWon);
+        stage.addChild(gold);
+    }
   }
 });
