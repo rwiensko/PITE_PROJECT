@@ -56,6 +56,19 @@ class TestConsumers(ChannelTestCase):
             'remove_player': {'id': 1}
         })
 
+    def test_destroy_room(self):
+        Channel(u"channel").send({
+            'text': json.dumps({
+                'action': 'destroy_room',
+            })
+        })
+        message = self.get_next_message(u"channel", require=True)
+        message['path'] = "/game-board/dodoni/1"
+        message.reply_channel = Channel(u"reply-channel")
+        ws_connect(message)
+        ws_receive(message)
+        self.assertEqual(len(Room.objects.all()), 0)
+
     def test_ws_disconnect(self):
         Channel(u"first-channel").send({})
         message = self.get_next_message(u"first-channel", require=True)

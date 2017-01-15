@@ -24,6 +24,9 @@ def ws_receive(message):
     label = message.channel_session['room']
     if data['action'] == 'remove_player':
         Player.objects.filter(id=data['remove_player']['id']).delete()
+    if data['action'] == 'destroy_room':
+        room = Room.objects.get(label=message.channel_session['room'])
+        room.delete()
     if data['action'] == 'remove_gold':
         data['remove_gold']['username'] = Player.objects.get(id=data['remove_gold']['id']).user.username
     Group("game-board-" + label).send({'text': json.dumps(data)})
