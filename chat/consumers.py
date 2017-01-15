@@ -21,12 +21,7 @@ def ws_connect(message):
     except Room.DoesNotExist:
         log.debug('ws room does not exist label=%s', label)
         return
-
-    log.debug('chat connect room=%s client=%s:%s',
-        room.label, message['client'][0], message['client'][1])
-
     Group('chat-'+label, channel_layer=message.channel_layer).add(message.reply_channel)
-
     message.channel_session['room'] = room.label
 
 @channel_session
@@ -40,7 +35,6 @@ def ws_receive(message):
     except Room.DoesNotExist:
         log.debug('recieved message, buy room does not exist label=%s', label)
         return
-
     try:
         data = json.loads(message['text'])
     except ValueError:
