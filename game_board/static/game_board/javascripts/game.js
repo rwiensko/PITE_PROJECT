@@ -144,6 +144,39 @@ $(function() {
       player.field = {x: 0, y: 0};
       player.id = player_id;
       player.have_diamond = false;
+      player.isStanding = function() {
+        return fields[this.field["y"] + 1][this.field["x"]];
+      }
+      player.animateAndSendPosition = function() {
+        if(!this.isStanding() && this.jumping_time == null){
+          this.jumping_time = new Date();
+        } else if(this.isStanding()){
+          this.jumping_time = null;
+        } else {
+          var now = new Date();
+          if(now.getTime() - this.jumping_time.getTime() > 400){
+            this.field["y"] += 1;
+            this.jumping_time = null;
+          }
+        }
+
+        this.x = this.field["x"] * 40;
+        this.y = this.field["y"] * 40;
+
+        var message = {
+          action: 'move_player',
+          move_player: {
+            id: player.id,
+            x: player.x,
+            y: player.y
+          }
+        };
+        if (player.last_x != player.x || player.last_y != player.y)
+          chatsock.send(JSON.stringify(message));
+
+        player.last_x = player.x;
+        player.last_y = player.y;
+      }
       stage.addChild(player);
 
       var players_ids = $('#main-content').data('players-ids');
@@ -170,7 +203,7 @@ $(function() {
             x: player.field["x"],
             y: player.field["y"] - 1
           };
-          if(canMoveTo(field["x"], field["y"]))
+          if(canMoveTo(field["x"], field["y"]) && player.isStanding())
             player.field["y"] -= 1;
         };
 
@@ -200,22 +233,7 @@ $(function() {
     function gameLoop() {
       requestAnimationFrame(gameLoop);
 
-      player.x = player.field["x"] * 40;
-      player.y = player.field["y"] * 40;
-      var message = {
-        action: 'move_player',
-        move_player: {
-          id: player.id,
-          x: player.x,
-          y: player.y
-        }
-      };
-      if (player.last_x != player.x || player.last_y != player.y)
-        chatsock.send(JSON.stringify(message));
-
-
-      player.last_x = player.x;
-      player.last_y = player.y;
+      player.animateAndSendPosition();
       gameStage.addChild(stage);
       gameStage.addChild(gameOverStage);
       renderer.render(gameStage);
