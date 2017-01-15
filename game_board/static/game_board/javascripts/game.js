@@ -38,24 +38,26 @@ $(function() {
 
     function sendRequestPlayerWon(){
       var id =stage.getChildIndex(this);
-      console.log("gold id: " +id)
+      console.log("gold id: " +id);
       var message = {
         action: 'remove_gold',
         remove_gold: {
-          id: id,
+          id: player.id,
         }
       };
 
       if ( Math.abs(this.x - player.x) <80 && Math.abs(this.y - player.y)  <80 ){
         chatsock.send(JSON.stringify(message));
+        console.log("sended");
       }
     }
 
     function gameOver(data){
-        var gold = PIXI.Sprite.fromImage("/static/game_board/images/gold_brick.png");
-        gold.x = 40;
-        gold.y = 40;
-        gameOverStage.addChild(gold);
+        console.log("gold id: " +data.id)
+        var game_end = PIXI.Sprite.fromImage("/static/game_board/images/game_end.png");
+        game_end.x = 0;
+        game_end.y = 0;
+        gameOverStage.addChild(game_end);
         var endText = new PIXI.Text('Player: ', { font: 'bold italic 60px Arvo', fill: '#3e1707', align: 'center', stroke: '#a4410e', strokeThickness: 7 });
         endText.text = 'Player: ' + data['username'] + ' won';
         endText.position.x = 100;
@@ -267,6 +269,7 @@ $(function() {
         removeBrick(data.remove_diamond);
         break;
        case "remove_gold":
+        console.log("received");
         gameOver(data.remove_gold);
         break;
       default:

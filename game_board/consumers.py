@@ -25,7 +25,7 @@ def ws_receive(message):
     if data['action'] == 'remove_player':
         Player.objects.filter(id=data['remove_player']['id']).delete()
     if data['action'] == 'remove_gold':
-        data['username'] = Player.objects.get(id=data['remove_gold']['player_id']).profile.user.username
+        data['remove_gold']['username'] = Player.objects.get(id=data['remove_gold']['id']).user.username
     Group("game-board-" + label).send({'text': json.dumps(data)})
 
 
