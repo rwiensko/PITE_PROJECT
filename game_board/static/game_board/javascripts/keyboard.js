@@ -12,6 +12,8 @@ function keyboard(keyCode) {
       key.isDown = true;
       key.isUp = false;
     }
+    if ([37, 38, 39, 40].indexOf(event.keyCode) > -1)
+     event.preventDefault();
   };
   //The `upHandler`
   key.upHandler = function(event) {
@@ -20,6 +22,8 @@ function keyboard(keyCode) {
       key.isDown = false;
       key.isUp = true;
     }
+    if ([37, 38, 39, 40].indexOf(event.keyCode) > -1)
+     event.preventDefault();
   };
   //Attach event listeners
   window.addEventListener(
