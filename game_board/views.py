@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.db import transaction
+from gunicorn.config import User
 from haikunator import Haikunator
 from chat.models import Room
 from game_board.models import Player
@@ -26,7 +27,8 @@ def new_room(request):
 def game_room(request, label):
     players_ids = list(Player.objects.filter(label=label).values('id'))
     players_ids = json.dumps(players_ids)
-    player = Player.objects.create(label=label)
+    user = User.objects.get(id=request.user.id)
+    player = Player.objects.create(label=label, user=user)
     room, created = Room.objects.get_or_create(label=label)
     messages = reversed(room.messages.order_by('-timestamp')[:50])
 

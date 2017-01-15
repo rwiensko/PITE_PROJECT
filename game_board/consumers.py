@@ -25,6 +25,8 @@ def ws_receive(message):
     log.debug(data['action'])
     if data['action'] == 'remove_player':
         Player.objects.filter(id=data['remove_player']['id']).delete()
+    if data['action'] == 'remove_gold':
+        data['username'] = Player.objects.get(id=data['remove_gold']['player_id']).profile.user.username
     Group("game-board-" + label).send({'text': json.dumps(data)})
     
 

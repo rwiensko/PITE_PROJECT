@@ -95,6 +95,11 @@ $(function() {
         gold.x = 40;
         gold.y = 40;
         gameOverStage.addChild(gold);
+        var endText = new PIXI.Text('Player: ', { font: 'bold italic 60px Arvo', fill: '#3e1707', align: 'center', stroke: '#a4410e', strokeThickness: 7 });
+        endText.text = 'Player: ' + data['username'] + ' won';
+        endText.position.x = 100;
+        endText.position.y = 100;
+        gameOverStage.addChild(endText);
         stage.visible = false;
         gameOverStage.visible = true;
     }
